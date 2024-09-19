@@ -1,0 +1,4 @@
+S=ACB
+A=aA|#
+B=bB|#
+C=c
