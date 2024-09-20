@@ -1,0 +1,11 @@
+int main() {
+    int a = 10;  
+    int b = 20;  
+    
+    /* Calculate the sum of a and b */
+    int sum = a + b;
+
+    printf("Sum is: %d\n", sum); 
+
+    return 0;
+}
