@@ -11,6 +11,9 @@ Lab3/tempCodeRunnerFile
 Lab3/test
 Lab3/test2
 /.vscode
-.exe
-./.exe
-../.exe
+*.exe
+./*.exe
+../*.exe
+*.vscode
+./*.vscode
+../*.vscode
