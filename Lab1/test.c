@@ -1,101 +1,75 @@
-//program to find first set of a grammar
-//taking upper case to be non terminals, rest all terminals
-
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int isCapital(char c){
-    if(c >= 65 && c <= 91){
-        return 1;
-    }
-    return 0;
-}
+#define MAX_RULES 100
+#define MAX_LENGTH 100
 
-void addAtStart(char *set, char c){
-    int k;
-    for(k=0;set[k] != '\0';k++){
-        if(set[k] == c){
-            return;
+typedef struct {
+    char non_terminal;
+    char productions[MAX_RULES][MAX_LENGTH];
+    int num_productions;
+} Rule;
+
+void convertLeftRecursiveToRightRecursive(Rule *rule) {
+    char new_non_terminal = rule->non_terminal + 1;
+    int has_left_recursion = 0;
+
+    for (int i = 0; i < rule->num_productions; ++i) {
+        if (rule->productions[i][0] == rule->non_terminal) {
+            has_left_recursion = 1;
+            break;
         }
     }
-    set[k] = c;
-    set[k+1] = '\0';
-}
 
-void first(char prod[10][10], char* set, char c, int n){
-    char temp[10];
-    int epsilon, j;
-    temp[0] = '\0';
-
-    if(!isCapital(c)){
-        addAtStart(set, c);
+    if (!has_left_recursion) {
+        for (int i = 0; i < rule->num_productions; ++i) {
+            printf("%c → %s\n", rule->non_terminal, rule->productions[i]);
+        }
         return;
     }
 
-    for(int i=0;i<n;i++){
-        if(prod[i][0] == c){
-            if(prod[i][2] == c) continue;
-            if(prod[i][2] == '$'){
-                addAtStart(set, '$');
-            }
-            else{
-                j = 2;
-                while(prod[i][j] != '\0'){
-                    epsilon = 0;
-                    first(prod, temp, prod[i][j], n);
-                    //add temp to set
-                    for(int k=0;temp[k]!='\0';k++){
-                        addAtStart(set, temp[k]);
-                    }
+    printf("Productions for %c:\n", rule->non_terminal);
 
-                    for(int k=0;temp[k]!='\0';k++){
-                        if(temp[k] == '$'){
-                            epsilon = 1;
-                            break;
-                        }
-                    }
-
-                    if(!epsilon){
-                        break;
-                    }
-
-                    j++;
-                }
-            }
+    for (int i = 0; i < rule->num_productions; ++i) {
+        if (rule->productions[i][0] != rule->non_terminal) {
+            printf("%c → %s%c'\n", rule->non_terminal, rule->productions[i], new_non_terminal);
         }
     }
 
-    return;
+    printf("%c' → ", new_non_terminal);
+    for (int i = 0; i < rule->num_productions; ++i) {
+        if (rule->productions[i][0] == rule->non_terminal) {
+            printf("%s%c' | ", &rule->productions[i][1], new_non_terminal);
+        }
+    }
+    printf("ep\n");
 }
 
-int main(){
-    char productions[10][10];
-    char set[10]; 
-    char c;
-    int n;
-    set[0] = '\0';
+int main() {
+    Rule rules[MAX_RULES];
+    int num_rules;
 
-    printf("Enter number of productions: ");
-    scanf("%d", &n);
+    printf("Enter number of rules: ");
+    scanf("%d", &num_rules);
 
-    printf("Enter the productions: \n");
-    for(int i=0;i<n;i++){
-        printf("Production %d: ", i+1);
-        scanf("%s", productions[i]);
+    for (int i = 0; i < num_rules; ++i) {
+        printf("Enter non-terminal for rule %d: ", i + 1);
+        scanf(" %c", &rules[i].non_terminal);
+
+        printf("Enter number of productions for %c: ", rules[i].non_terminal);
+        scanf("%d", &rules[i].num_productions);
+
+        printf("Enter productions for %c:\n", rules[i].non_terminal);
+        for (int j = 0; j < rules[i].num_productions; ++j) {
+            scanf("%s", rules[i].productions[j]);
+        }
     }
 
-    printf("Enter Non-terminal to find the First set for: ");
-    scanf(" %c", &c);
-
-    first(productions, set, c, n);
-    for(int i=0;set[i]!='\0';i++){
-        printf("%c ", set[i]);
+    printf("\nConverted Right-Recursive Rules:\n");
+    for (int i = 0; i < num_rules; ++i) {
+        convertLeftRecursiveToRightRecursive(&rules[i]);
     }
 
-    // for(int i=0;i<n;i++){
-    //     for(int j=0;prod[i][j] != '\0';j++){
-    //         printf("%c", prod[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-    
+    return 0;
 }
